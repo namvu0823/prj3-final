@@ -110,6 +110,38 @@ app.post('/processed', upload.single('file'), (req, res) => {
     });
 });
 
+app.post('/fire-detection', upload.single('file'), async (req, res) => {
+    if (!req.file) {
+        console.error('No file received');
+        return res.status(400).send('No file received');
+    }
+    const tempPath = req.file.path;
+
+    try {
+        // Lấy thời gian hiện tại để tạo tên tệp
+        const now = new Date();
+        const filename = now;
+        const fileContent = fs.readFileSync(tempPath);// Đọc nội dung ảnh từ fileB
+        const imageDocument = {
+            filename, // Tên tệp là thời gian
+            contentType: req.file.mimetype || 'image/jpeg',
+            data: fileContent,
+        };
+
+        // Lưu tài liệu vào MongoDB
+        const result = await db.collection('fire_images').insertOne(imageDocument);
+        console.log('Image saved to MongoDB:', result.insertedId);
+
+        // Xóa file tạm sau khi lưu xong
+        fs.unlinkSync(tempPath);
+
+        res.status(200).send('Image saved to MongoDB');
+    } catch (error) {
+        console.error('Error saving image to MongoDB:', error);
+        res.status(500).send('Error saving image to MongoDB');
+    }
+});
+
 app.post('/login', async(req, res) => {//endpoint login 
     const { email, password } = req.body;
     try{
@@ -132,7 +164,18 @@ app.post('/login', async(req, res) => {//endpoint login
     }
 });
 
-
+app.get('/list-images', async (req, res) => {
+    try {
+        const images = await db.collection('fire_images').find(
+            {}, 
+            { projection: { _id: 1, filename: 1 } } // Lấy ID và tên ảnh
+        ).toArray();
+        res.json(images);
+    } catch (error) {
+        console.error('Error fetching image list:', error);
+        res.status(500).send('Error fetching image list');
+    }
+});
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));//uploads ảnh mới nhất vào thư mục uploads
 
@@ -144,14 +187,12 @@ app.listen(port, () => {
 });
 
 let sensorData = {}; 
-
 wss.on('connection', (ws) => {
     console.log('ESP32 connected');
    // ws.send(JSON.stringify(msg_camera));
     setInterval(() => {ws.send(JSON.stringify(msg_camera));}, 100);//gửi thông tin bật/tắt camera mỗi 100ms
 
     ws.on('message', async (message) => {
-    
     try {
         const rec_sensorData = JSON.parse(message);//nhận sensor data từ esp32
         sensorData = rec_sensorData;
@@ -161,7 +202,6 @@ wss.on('connection', (ws) => {
         return;
     }
     });
-
     ws.on('close', () => {
         console.log('ESP32 disconnected');
     });
