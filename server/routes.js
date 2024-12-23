@@ -8,6 +8,14 @@ const { spawn } = require('child_process');
 // Set up multer for file uploads
 const upload = multer({ dest: path.join(__dirname, 'uploads/') });
 
+function generateFileName() {//hàm tạo tên ảnh
+    const now = new Date();
+    return now.toISOString()
+        .replace(/[:.]/g, '_')  // Replace : and . with _
+        .replace('Z', '')       // Remove Z suffix
+        .slice(0, 19);          // Take only YYYY_MM_DDThh_mm_ss
+}
+
 // Toggle Python Process endpoint
 router.post('/toggle-python', (req, res) => {
     const {msg} = req.query;
@@ -77,7 +85,7 @@ router.post('/processed', upload.single('file'), (req, res) => {
     });
 });
 
-router.post('/fire-detection', upload.single('file'), async (req, res) => {//lưu ảnh phát hiện lửa lên db
+router.post('/fire-detection', upload.single('file'), async (req, res) => {
     if (!req.file) {
         console.error('No file received');
         return res.status(400).send('No file received');
@@ -86,8 +94,8 @@ router.post('/fire-detection', upload.single('file'), async (req, res) => {//lư
 
     try {
         const now = new Date();
-        const filename = now.toISOString();
-        filename = filename.replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        
         const fileContent = fs.readFileSync(tempPath);
         const imageDocument = {
             filename,
@@ -105,6 +113,7 @@ router.post('/fire-detection', upload.single('file'), async (req, res) => {//lư
         res.status(500).send('Error saving image to MongoDB');
     }
 });
+
 
 // Login endpoint
 router.post('/login', async(req, res) => {
@@ -126,42 +135,22 @@ router.post('/login', async(req, res) => {
     }
 });
 
-// List images endpoint
-router.get('/list-images', async (req, res) => {//lấy danh sách ảnh
-    try {
-        const images = await req.app.locals.db.collection('fire_images').find(
-            {}, 
-            { projection: { _id: 1, filename: 1 } }
-        ).toArray();
-        res.json(images);
-    } catch (error) {
-        console.error('Error fetching image list:', error);
-        res.status(500).send('Error fetching image list');
-    }
-});
-
 router.get('/graph-data', async (req, res) => {
     try {
         const collection = req.app.locals.db.collection('fire_images'); 
-
-        // Thực hiện truy vấn
+        // Tính thời gian hiện tại UTC+7
+        const currentUtc7Time = new Date(new Date().getTime() + (7 * 60 * 60 * 1000));
+        
         const results = await collection.aggregate([
             {
                 $addFields: {
-                    timestamp: {
-                        $dateFromString: {
-                            dateString: {
-                                $substr: ["$filename", 0, 23] // Trích xuất phần timestamp từ filename
-                            },
-                            format: "%Y_%m_%dT%H_%M_%S_%LZ"
-                        }
-                    }
+                    timestamp: "$filename" // Sử dụng trực tiếp filename vì đã là Date
                 }
             },
             {
                 $match: {
                     timestamp: {
-                        $gte: new Date(new Date() - 25 * 60 * 60 * 1000) // Lọc trong 25 giờ qua
+                        $gte: new Date(currentUtc7Time - 25 * 60 * 60 * 1000) // 25 giờ trước theo UTC+7
                     }
                 }
             },
@@ -170,38 +159,38 @@ router.get('/graph-data', async (req, res) => {
                     hours_difference: {
                         $floor: {
                             $divide: [
-                                { $subtract: [new Date(), "$timestamp"] }, // Thời gian hiện tại - timestamp
-                                1000 * 60 * 60 // Chuyển đổi từ milliseconds sang giờ
+                                { $subtract: [currentUtc7Time, "$timestamp"] },
+                                1000 * 60 * 60
                             ]
                         }
                     }
                 }
             },
             {
-                $match: {
-                    hours_difference: { $ne: 0 } // Loại bỏ nhóm `_id = 0`
-                }
-            },
-            {
                 $group: {
-                    _id: "$hours_difference", // Nhóm theo độ chênh lệch giờ
+                    _id: "$hours_difference",
                     count: { $sum: 1 }
                 }
             },
             {
-                $sort: { _id: 1 } // Sắp xếp theo độ chênh lệch giờ
+                $sort: { _id: 1 }
             }
         ]).toArray();
 
-        // Trả dữ liệu về client
-        res.status(200).json(results);
+        // Thêm thông tin về thời gian hiện tại và người dùng vào response
+        const currentUtcTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+        const response = {
+            data: results,
+            currentTime: currentUtcTime,
+            userLogin: 'namvu0823'
+        };
+
+        res.status(200).json(response);
     } catch (error) {
         console.error('Error fetching graph data:', error);
         res.status(500).send('Error fetching graph data');
     }
 });
-
-
 // Sensor data endpoint
 router.get('/sensor-data', (req, res) => {
     res.json(req.app.locals.sensorData);

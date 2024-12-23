@@ -58,7 +58,7 @@ setInterval(() => {
     .catch((error) => {
         console.error('Error fetching sensor data:', error);
         sensorStatus.textContent = 'Không thể lấy dữ liệu cảm biến.';
-        sensorStatus.style.color = 'red';
+        sensorStatus.style.color = 'black';
     });
 
     // Cập nhật ảnh động nếu camera đang bật
@@ -71,30 +71,127 @@ function updateSensorStatus(sensorData) {
     flameStatus.textContent = sensorData.flame ? 'Phát hiện lửa' : 'Không phát hiện ngọn lửa';
 
     // Cập nhật màu sắc trạng thái
-    gasStatus.style.color = sensorData.gas ? 'orange' : 'green';
-    flameStatus.style.color = sensorData.flame ? 'orange' : 'green';
+    gasStatus.style.backgroundColor = sensorData.gas ? 'orange' : '';
+    flameStatus.style.backgroundColor = sensorData.flame ? 'orange' : '';
 
     // Cập nhật thông báo trạng thái chung
     let statusMessage = 'Hệ thống an toàn';
-    let statusColor = 'green';
+    //let statusColor = 'green';
+    let backgroundColor = '';
 
     if (sensorData.gas && sensorData.flame) {
         statusMessage = 'Phát hiện có lửa, có khói!';
-        statusColor = 'red';
+        backgroundColor = 'red';
+        
     } else if (sensorData.gas) {
         statusMessage = 'Phát hiện có khói!';
-        statusColor = 'orange';
+        backgroundColor = 'orange';
+        
     } else if (sensorData.flame) {
         statusMessage = 'Phát hiện có lửa!';
-        statusColor = 'orange';
+        backgroundColor = 'orange';
+        
     }
 
     // Cập nhật trạng thái vào giao diện
     sensorStatus.textContent = `Trạng thái: ${statusMessage}`;
-    sensorStatus.style.color = statusColor;
+    const sensorDiv = document.getElementById('time');
+    if (sensorDiv) {
+        sensorDiv.style.backgroundColor = backgroundColor;
+    }
+   
 
     // Cập nhật thời gian
     const now = new Date();
     const timeString = now.toLocaleTimeString();
     time.textContent = ' Thời gian: ' + timeString;
 }
+
+
+// Khởi tạo biến chart để lưu trữ đối tượng đồ thị
+let fireDetectionChart;
+
+// Hàm khởi tạo đồ thị
+function initChart() {
+    const ctx = document.getElementById('fireDetectionChart').getContext('2d');
+    fireDetectionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Số lần phát hiện',
+                data: [],
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    position: 'right', // Hiển thị số giờ ở bên phải
+                    title: {
+                        display: false,
+                        text: 'giờ trước'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Biểu đồ theo dõi số lần hệ thống phát hiện dấu hiệu cháy theo giờ',
+                    padding: {
+                        top: 10,
+                        bottom: 10
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Hàm cập nhật dữ liệu đồ thị
+function updateChart() {
+    fetch('/graph-data')
+        .then(response => response.json())
+        .then(response => {
+            // Tạo mảng đầy đủ 25 giờ với giá trị mặc định là 0
+            const fullData = Array(25).fill(0);
+            
+            // Cập nhật giá trị cho các giờ có dữ liệu
+            response.data.forEach(item => {
+                if (item._id >= 0 && item._id <= 24) {
+                    fullData[item._id] = item.count;
+                }
+            });
+
+            // Tạo labels từ 0 đến 24
+            const labels = Array.from({length: 25}, (_, i) => `${i}`);
+
+            // Cập nhật dữ liệu cho đồ thị
+            fireDetectionChart.data.labels = labels;
+            fireDetectionChart.data.datasets[0].data = fullData;
+            
+            // Cập nhật đồ thị
+            fireDetectionChart.update();
+        })
+        .catch(error => {
+            console.error('Error fetching graph data:', error);
+        });
+}
+
+// Khởi tạo đồ thị khi trang web được tải
+document.addEventListener('DOMContentLoaded', () => {
+    initChart();
+    updateChart(); // Cập nhật dữ liệu lần đầu
+    
+    // Cập nhật đồ thị mỗi giờ
+    setInterval(updateChart, 3600000); // 3600000 ms = 1 giờ
+});

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+  
     <title>Client</title>
     <link rel="stylesheet" href="app.css">
 </head>
@@ -10,30 +11,27 @@
     <h1>Hệ thống cảm biến </h1>
     <div class="main_body">
         <div class="child1">
-            <p id="time">Thời gian:</p>
-            <p id="sensorStatus">Trạng thái</p>
-            <table id="sensorTable">
-                <thead>
-                    <tr>
-                        <th>Cảm biến khí ga</th>
-                        <th>Cảm biến lửa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td id="gasStatus">N/A</td>
-                        <td id="flameStatus">N/A</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="graph">
+            <div id="sensor">
+                <div id="time">
+                    <p id="time_system">Thời gian:</p>
+                    <p id="sensorStatus">Trạng thái</p>
+                </div>
                 
+                <div id="sensor_p">
+                    <div id="gasStatus">N/A</div>
+                    <div id="flameStatus">N/A</div>
+                </div>
+            </div>
+           
+            <div class="graph">
+                <canvas id="fireDetectionChart"></canvas>
             </div>
         </div>
         <div class="child2">
             <button id="toggleButton">Camera</button>
             <img id="cameraStream"src="default_image.jpg" alt="Camera Stream">
             <script src="app.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         </div>
     </div>
 </body>
