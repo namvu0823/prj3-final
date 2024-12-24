@@ -4,33 +4,38 @@ function validateDate() {
     const dayInput = document.getElementById("day").value;
 
     const year = parseInt(yearInput, 10);
-    const month = parseInt(monthInput, 10) - 1; // Months in JS start from 0
+    const month = parseInt(monthInput, 10) - 1;
     const day = parseInt(dayInput, 10);
 
-    // Create date at start of the day in local timezone
-    const inputDate = new Date(year, month, day);
-    inputDate.setHours(0, 0, 0, 0);
-    
-    const isValid = !isNaN(inputDate.getTime());
+    // Tạo date theo UTC
+    const inputDate = new Date(Date.UTC(year, month, day));
+    const isValid =
+        inputDate.getUTCFullYear() === year &&
+        inputDate.getUTCMonth() === month &&
+        inputDate.getUTCDate() === day;
 
     let result = "";
     if (!isValid) {
-        result = `The entered date is not valid. Please enter a correct date.`;
+        result = `Ngày không hợp lệ. Vui lòng nhập lại.`;
     } else {
-        // Format as timestamp for consistent comparison
-        const timestamp = inputDate.getTime();
-        result = `Searching for images on ${inputDate.toLocaleDateString()}`;
-        update_library(timestamp);
+        // Format date theo ISO string
+        const formattedDate = inputDate.toISOString().split('T')[0];
+        result = `Ngày ${formattedDate} hợp lệ.`;
+        update_library(formattedDate);
     }
 
     document.getElementById("result").textContent = result;
 }
 
-async function update_library(timestamp) {
+async function update_library(substring) {
+    if (!substring) {
+        document.getElementById("gallery").textContent = "Vui lòng nhập ngày hợp lệ.";
+        return;
+    }
     try {
-        const response = await fetch(`/history_image?substring=${timestamp}`);
+        const response = await fetch(`/history_image?substring=${encodeURIComponent(substring)}`);
         if (!response.ok) {
-            throw new Error(`Error fetching images: ${response.status}`);
+            throw new Error(`Lỗi khi tải ảnh: ${response.status}`);
         }
 
         const images = await response.json();
@@ -38,33 +43,31 @@ async function update_library(timestamp) {
         galleryDiv.innerHTML = "";
 
         if (images.length === 0) {
-            galleryDiv.textContent = "No images found for this date.";
+            galleryDiv.textContent = "Không tìm thấy ảnh.";
             return;
         }
 
         images.forEach(image => {
-            // Convert binary data to image
             const imageItem = document.createElement("div");
             imageItem.className = "image-item";
 
+            // Tạo element cho ảnh
             const imgElement = document.createElement("img");
-            // Convert binary data to base64
-            const base64Image = btoa(
-                new Uint8Array(image.data.buffer)
-                    .reduce((data, byte) => data + String.fromCharCode(byte), '')
-            );
-            imgElement.src = `data:${image.contentType};base64,${base64Image}`;
-            imgElement.alt = new Date(image.filename).toLocaleString();
-
+            // Chuyển binary data sang base64
+            const base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(image.data.data)));
+            imgElement.src = `data:${image.contentType};base64,${base64String}`;
+            
+            // Hiển thị thời gian theo múi giờ local (+7)
+          
             const caption = document.createElement("p");
-            caption.textContent = new Date(image.filename).toLocaleString();
+            caption.textContent = image.filename;
 
             imageItem.appendChild(imgElement);
             imageItem.appendChild(caption);
             galleryDiv.appendChild(imageItem);
         });
     } catch (error) {
-        console.error('Error:', error);
-        document.getElementById("gallery").textContent = "An error occurred while fetching images.";
+        console.error(error);
+        document.getElementById("gallery").textContent = "Đã xảy ra lỗi khi tải ảnh.";
     }
 }

@@ -198,27 +198,27 @@ router.get('/history_image', async (req, res) => {
     const { substring } = req.query;
 
     if (!substring) {
-        return res.status(400).json({ message: 'Timestamp parameter is required' });
+        return res.status(400).json({ message: 'Substring query parameter is required' });
     }
 
     try {
-        const timestamp = parseInt(substring);
-        const startOfDay = new Date(timestamp);
-        const endOfDay = new Date(timestamp);
-        endOfDay.setDate(endOfDay.getDate() + 1);
-
         const collection = req.app.locals.db.collection('fire_images');
+        // Create start and end date for the query
+        const searchDate = new Date(substring);
+        const nextDay = new Date(searchDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+
         const images = await collection.find({
-            filename: { 
-                $gte: startOfDay,
-                $lt: endOfDay
+            filename: {
+                $gte: searchDate,
+                $lt: nextDay
             }
         }).toArray();
 
         res.status(200).json(images);
     } catch (error) {
-        console.error('Error fetching images by date:', error);
-        res.status(500).json({ message: 'Error fetching images by date' });
+        console.error('Error fetching images by substring:', error);
+        res.status(500).json({ message: 'Error fetching images by substring' });
     }
 });
 
