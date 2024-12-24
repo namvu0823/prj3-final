@@ -20,10 +20,9 @@ function validateDate() {
     } else {
         // Format date theo ISO string
         const formattedDate = inputDate.toISOString().split('T')[0];
-        result = `Ngày ${formattedDate} hợp lệ.`;
+        result = `Các ảnh chụp trong ngày ${formattedDate}.`;
         update_library(formattedDate);
     }
-
     document.getElementById("result").textContent = result;
 }
 
@@ -51,14 +50,17 @@ async function update_library(substring) {
             const imageItem = document.createElement("div");
             imageItem.className = "image-item";
 
+            
             // Tạo element cho ảnh
             const imgElement = document.createElement("img");
-            // Chuyển binary data sang base64
-            const base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(image.data.data)));
-            imgElement.src = `data:${image.contentType};base64,${base64String}`;
             
-            // Hiển thị thời gian theo múi giờ local (+7)
-          
+            // Sử dụng trực tiếp dữ liệu Base64 từ MongoDB
+            imgElement.src = `data:${image.contentType};base64,${image.data}`;
+            
+            // Thêm style cho ảnh
+            imgElement.style.maxWidth = '300px';
+            imgElement.style.height = 'auto';
+            
             const caption = document.createElement("p");
             caption.textContent = image.filename;
 

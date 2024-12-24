@@ -95,7 +95,7 @@ router.post('/fire-detection', upload.single('file'), async (req, res) => {
     try {
         const now = new Date();
         const filename = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        
+        //const filename=now.toISOString();
         const fileContent = fs.readFileSync(tempPath);
         const imageDocument = {
             filename,
@@ -214,8 +214,11 @@ router.get('/history_image', async (req, res) => {
                 $lt: nextDay
             }
         }).toArray();
-
-        res.status(200).json(images);
+        const processedImages = images.map(image => ({
+            ...image,
+            data: image.data.toString('base64') // Chuyển Buffer thành Base64
+        }));
+        res.status(200).json(processedImages);
     } catch (error) {
         console.error('Error fetching images by substring:', error);
         res.status(500).json({ message: 'Error fetching images by substring' });
