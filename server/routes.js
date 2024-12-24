@@ -191,7 +191,32 @@ router.get('/graph-data', async (req, res) => {
         res.status(500).send('Error fetching graph data');
     }
 });
-// Sensor data endpoint
+
+
+// Fetch images by filename substring endpoint
+router.get('/history_image', async (req, res) => {
+    const { substring } = req.query;
+
+    if (!substring) {
+        return res.status(400).json({ message: 'Substring query parameter is required' });
+    }
+
+    try {
+        const collection = req.app.locals.db.collection('fire_images');
+        const images = await collection.find({
+            filename: { 
+                $regex: `^${substring}`, // tìm từ đầu chuỗi
+                $options: 'i' //không phân biệt hoa thường
+            }
+        }).toArray();
+
+        res.status(200).json(images);
+    } catch (error) {
+        console.error('Error fetching images by substring:', error);
+        res.status(500).json({ message: 'Error fetching images by substring' });
+    }
+});
+
 router.get('/sensor-data', (req, res) => {
     res.json(req.app.locals.sensorData);
 });
@@ -203,6 +228,9 @@ router.get('/', (req, res) => {
 
 router.get('/app', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'app', 'app.html'));
+});
+router.get('/history', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'history', 'history.html'));
 });
 
 module.exports = router;

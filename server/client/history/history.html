@@ -12,13 +12,13 @@
         <nav>
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="index.html" class="nav-link">
+                    <a href="/app" class="nav-link">
                         <i class="fas fa-home"></i>
                         Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="bookmarks.html" class="nav-link">
+                    <a href="/history" class="nav-link">
                         <i class="fas fa-bookmark"></i>
                        History
                     </a>
@@ -29,18 +29,16 @@
     <div id="list">
         <div id="date_select">
             <form id="date-form">
-                
                 <input type="number" id="year" name="year" placeholder="Year" required>
                 <input type="number" id="month" name="month" placeholder="Month" min="1" max="12" required>
                 <input type="number" id="day" name="day" placeholder="Day" min="1" max="31" required>
                 <button type="button" onclick="validateDate()">Submit</button>
             </form>
             <p id="result"></p>
+
         </div>
-       
-    
+        <div id="gallery"></div>
     </div>
-    
 </body>
 <script src="history.js"></script>
 </html>

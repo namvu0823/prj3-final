@@ -16,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/client/login'));
 app.use(express.static(__dirname + '/client/app'));
+app.use(express.static(__dirname + '/client/history'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Global variables
