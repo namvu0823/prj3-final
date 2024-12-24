@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Client</title>
+    <link rel="stylesheet" href="history.css">
+</head>
+<body>
+    <div id="taskbar">
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="bookmarks.html" class="nav-link">
+                        <i class="fas fa-bookmark"></i>
+                       History
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div id="list">
+        <div id="date_select">
+            <form id="date-form">
+                
+                <input type="number" id="year" name="year" placeholder="Year" required>
+                <input type="number" id="month" name="month" placeholder="Month" min="1" max="12" required>
+                <input type="number" id="day" name="day" placeholder="Day" min="1" max="31" required>
+                <button type="button" onclick="validateDate()">Submit</button>
+            </form>
+            <p id="result"></p>
+        </div>
+       
+    
+    </div>
+    
+</body>
+<script src="history.js"></script>
+</html>

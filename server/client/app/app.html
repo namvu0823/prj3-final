@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Client</title>
     <link rel="stylesheet" href="app.css">
 </head>
 <body>
-    <h1>Hệ thống cảm biến </h1>
-    <div class="main_body">
-        <div class="child1">
-            <div id="sensor">
-                <div id="time">
-                    <p id="time_system">Thời gian:</p>
-                    <p id="sensorStatus">Trạng thái</p>
+    <div id="taskbar">
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="bookmarks.html" class="nav-link">
+                        <i class="fas fa-bookmark"></i>
+                       History
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div id="system">
+        <h1>Hệ thống cảm biến </h1>
+        <div class="main_body">
+            
+            <div class="child1">
+                <div id="sensor">
+                    <div id="time">
+                        <p id="time_system">Thời gian:</p>
+                        <p id="sensorStatus">Trạng thái</p>
+                    </div>
+                    
+                    <div id="sensor_p">
+                        <div id="gasStatus">N/A</div>
+                        <div id="flameStatus">N/A</div>
+                    </div>
                 </div>
-                
-                <div id="sensor_p">
-                    <div id="gasStatus">N/A</div>
-                    <div id="flameStatus">N/A</div>
+               
+                <div class="graph">
+                    <canvas id="fireDetectionChart"></canvas>
                 </div>
             </div>
-           
-            <div class="graph">
-                <canvas id="fireDetectionChart"></canvas>
+            <div class="child2">
+                <button id="toggleButton">Camera</button>
+                <img id="cameraStream"src="default_image.jpg" alt="Camera Stream">
+                <script src="app.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             </div>
-        </div>
-        <div class="child2">
-            <button id="toggleButton">Camera</button>
-            <img id="cameraStream"src="default_image.jpg" alt="Camera Stream">
-            <script src="app.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         </div>
     </div>
+    
 </body>
 </html>

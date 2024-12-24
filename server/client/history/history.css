@@ -1,0 +1,84 @@
+body {
+    display: flex;
+    min-height: 100vh; 
+    margin: 0; 
+    text-align: center;
+    font-family: Arial, sans-serif; 
+}
+
+#taskbar {
+    width: 50px; /* Adjust the width as needed */
+    padding: 20px;
+    background-color: #f0f0f0; /* Optional: adds background color */
+}
+
+#list{
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+    flex: 1;
+}
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.nav-item {
+    margin-bottom: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+}
+
+.nav-link {
+    
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+    
+    transition: background-color 0.3s;
+    
+    width: 30px;
+}
+
+.nav-item:hover {
+    background-color: #ddd;
+}
+
+.nav-link i {
+    margin-right: 10px;
+    width: 30px;
+    text-align: center;
+}
+
+#date_select{
+    margin: 0 auto;
+    height: 30px;
+    width: 500px;
+    align-items: center; /* Căn giữa theo chiều dọc */
+    gap: 10px;
+    border-radius: 10px;
+    background-color: rgba(25, 20, 63, 0.566);
+    padding: 20px;
+}
+#date-form {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    width: 430px;
+    gap: 10px;
+}
+#date-form label {
+    margin: 0;
+    width: 45px;
+}
+#date-form input {
+    padding: 5px;
+    width: 90px;
+}
+#date-form button {
+    padding: 5px 10px;
+    width: 90px;
+}

@@ -104,7 +104,7 @@ function updateSensorStatus(sensorData) {
     // Cập nhật thời gian
     const now = new Date();
     const timeString = now.toLocaleTimeString();
-    time.textContent = ' Thời gian: ' + timeString;
+    time_system.textContent = ' Thời gian: ' + timeString;
 }
 
 
