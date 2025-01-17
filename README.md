@@ -1,6 +1,6 @@
 Hệ thống phát hiện và cảnh báo ngọn lửa sử dụng ESP32-cam, LM393, MQ2
 giám sát thông số môi trường, truyền trực tiếp thời gian thực lên web
 Sử dụng Yolov 10 nhận diện hình ảnh ngọn lửa ,cảnh báo và lưu trữ lên Mongodb
-![đăng nhập](blob:https://www.facebook.com/be323030-e03e-4c33-8605-2d3c131f02f4)
-![giám sát môi trường](blob:https://www.facebook.com/c08bd9b2-8646-4212-b141-f3b5695ed84c)
-![thống kê](blob:https://www.facebook.com/baaeac20-892a-4147-875a-6ab41f307b28)
+![đăng nhập](https://github.com/namvu0823/prj3-final/blob/main/image/z6239286303937_fcff532fc5414d31072b73cb9153e371.jpg)
+![giám sát môi trường](https://github.com/namvu0823/prj3-final/blob/main/image/z6239286304577_251628c6081f4f5566a8764b83378190.jpg)
+![thống kê](https://github.com/namvu0823/prj3-final/blob/main/image/z6239286304137_bc27345679881bb414c6f670ad730728.jpg)
